@@ -5,16 +5,6 @@ use conrod::{widget, Colorable, Positionable, Widget};
 use conrod::backend::glium::glium;
 use conrod::backend::glium::glium::{DisplayBuild, Surface};
 
-fn main() {
-    let ans = iter(identity);
-    println!("Final: {:?}", ans);
-}
-
-fn identity(text: &str) -> String {
-    println!("Processing: {}", text);
-    String::from(text)
-}
-
 pub fn iter<F>(process: F) -> Option<String>
     where F: Fn(&str) -> String
 {

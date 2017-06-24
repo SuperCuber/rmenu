@@ -1,5 +1,5 @@
 [root]
-name = "hello_conrod"
+name = "rmenu"
 version = "0.1.0"
 dependencies = [
  "conrod 0.53.0 (registry+https://github.com/rust-lang/crates.io-index)",
