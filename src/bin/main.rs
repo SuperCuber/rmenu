@@ -3,24 +3,22 @@ extern crate rmenu;
 use std::collections::HashMap;
 
 fn main() {
-    let mut options = HashMap::<String, String>::new();
+    let mut options = HashMap::<&str, &str>::new();
 
-    // Add options
+    options.insert("Hi", "Bye");
 
     let mut converted_options = HashMap::new();
     for entry in options {
         converted_options.insert(entry.0.into(), entry.1.into());
     }
 
-    let ans = rmenu::iter(|s| process(s, &converted_options));
+    let ans = rmenu::run(|s| process(s, &converted_options));
     println!("Final: {:?}", ans);
 }
 
 fn filter(text: &str, options: &HashMap<String, String>) -> HashMap<String, String> {
     let mut answer = options.clone();
-    answer.retain(|k, _| {
-        k.starts_with(text)
-    });
+    answer.retain(|k, _| k.starts_with(text));
     answer
 }
 

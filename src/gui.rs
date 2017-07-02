@@ -1,4 +1,4 @@
-use ::std;
+use std;
 
 use conrod::{self, widget, Colorable, Positionable, Widget};
 use conrod::backend::glium::glium;
@@ -6,11 +6,19 @@ use conrod::backend::glium::glium::{DisplayBuild, Surface};
 
 use conrod::backend::glium::glium::glutin::VirtualKeyCode;
 
+use config::Config;
+
 struct State {
     input_text: String,
 }
 
-pub fn iter<F>(process: F) -> Option<String>
+pub fn run<F>(process: F) -> Option<String>
+    where F: Fn(&str) -> String
+{
+    run_config(process, Config::default())
+}
+
+pub fn run_config<F>(process: F, configuration: Config) -> Option<String>
     where F: Fn(&str) -> String
 {
     // Build the window.
@@ -79,20 +87,16 @@ pub fn iter<F>(process: F) -> Option<String>
             match event {
                 // Break from the loop upon `Escape`.
                 glium::glutin::Event::KeyboardInput(_, _, Some(VirtualKeyCode::Escape)) |
-                    glium::glutin::Event::Closed => {
-                        break 'main;
-                    }
+                glium::glutin::Event::Closed => {
+                    break 'main;
+                }
                 glium::glutin::Event::KeyboardInput(glium::glutin::ElementState::Pressed,
                                                     _,
                                                     Some(keycode)) => {
                     println!("Key: {:?}", keycode);
                     match keycode {
-                        VirtualKeyCode::Up => {
-
-                        }
-                        VirtualKeyCode::Down => {
-
-                        }
+                        VirtualKeyCode::Up => {}
+                        VirtualKeyCode::Down => {}
                         _ => {}
                     }
                 }
@@ -103,7 +107,7 @@ pub fn iter<F>(process: F) -> Option<String>
         // Instantiate all widgets in the GUI.
         {
             let ui = &mut ui.set_widgets();
-            if let Some(answer) = set_widgets(ui, &ids, &mut state, &process) {
+            if let Some(answer) = set_widgets(ui, &ids, &mut state, &process, &configuration) {
                 return Some(answer);
             }
         }
@@ -126,20 +130,21 @@ widget_ids!(struct Ids { canvas, scrollbar, input, output });
 fn set_widgets<F>(ui: &mut conrod::UiCell,
                   ids: &Ids,
                   state: &mut State,
-                  process: &F)
+                  process: &F,
+                  config: &Config)
                   -> Option<String>
     where F: Fn(&str) -> String
 {
     widget::Canvas::new()
         .scroll_kids_vertically()
-        .color(conrod::color::DARK_CHARCOAL)
+        .color(config.canvas_color)
         .set(ids.canvas, ui);
 
     if let Some(edit) = widget::TextEdit::new(&state.input_text)
-            .color(conrod::color::WHITE)
-            .mid_top_of(ids.canvas)
-            .center_justify()
-            .set(ids.input, ui) {
+           .color(config.input_color)
+           .mid_top_of(ids.canvas)
+           .center_justify()
+           .set(ids.input, ui) {
         state.input_text = edit;
         // If contains \n, return this (without \n) as answer
         if state.input_text.contains('\n') {
@@ -148,7 +153,7 @@ fn set_widgets<F>(ui: &mut conrod::UiCell,
     }
 
     widget::Text::new(&process(&state.input_text))
-        .color(conrod::color::LIGHT_RED)
+        .color(config.unselected_color)
         .middle_of(ids.canvas)
         .center_justify()
         .set(ids.output, ui);
