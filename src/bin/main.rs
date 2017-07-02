@@ -1,38 +1,41 @@
 extern crate rmenu;
 
-use std::collections::HashMap;
-
 fn main() {
-    let mut options = HashMap::<&str, &str>::new();
+    let mut options = Vec::new();
 
-    options.insert("Hi", "Bye");
+    options.push(("1", "Test"));
+    options.push(("2", "Test"));
+    options.push(("3", "Test"));
+    options.push(("4", "Test"));
 
-    let mut converted_options = HashMap::new();
+    let mut converted_options = Vec::new();
     for entry in options {
-        converted_options.insert(entry.0.into(), entry.1.into());
+        converted_options.push((entry.0.into(), entry.1.into()));
     }
 
     let ans = rmenu::run(|s| process(s, &converted_options));
     println!("Final: {:?}", ans);
 }
 
-fn filter(text: &str, options: &HashMap<String, String>) -> HashMap<String, String> {
-    let mut answer = options.clone();
-    answer.retain(|k, _| k.starts_with(text));
+fn filter(text: &str, options: &[(String, String)]) -> Vec<(String, String)> {
+    let mut answer = Vec::new();
+    for option in options {
+        if option.0.starts_with(text) {
+            answer.push(option.clone());
+        }
+    }
     answer
 }
 
-fn process(text: &str, options: &HashMap<String, String>) -> String {
-    let answer = filter(text, options);
-    if answer.is_empty() {
-        return String::new();
+fn process(text: &str, options: &[(String, String)]) -> Vec<String> {
+    let tuple_answer = filter(text, options);
+    let mut text_answer = Vec::new();
+    for (key, value) in tuple_answer {
+        let mut text = String::new();
+        text.push_str(&key);
+        text.push_str(" - ");
+        text.push_str(&value);
+        text_answer.push(text);
     }
-    let mut text_answer = String::new();
-    for (key, value) in answer {
-        text_answer.push_str(&key);
-        text_answer.push_str(" - ");
-        text_answer.push_str(&value);
-        text_answer.push('\n');
-    }
-    String::from(&text_answer[..text_answer.len() - 1])
+    text_answer
 }

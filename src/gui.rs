@@ -10,16 +10,17 @@ use config::Config;
 
 struct State {
     input_text: String,
+    selected: usize,
 }
 
 pub fn run<F>(process: F) -> Option<String>
-    where F: Fn(&str) -> String
+    where F: Fn(&str) -> Vec<String>
 {
-    run_config(process, Config::default())
+    run_config(process, &Config::default())
 }
 
-pub fn run_config<F>(process: F, configuration: Config) -> Option<String>
-    where F: Fn(&str) -> String
+pub fn run_config<F>(process: F, configuration: &Config) -> Option<String>
+    where F: Fn(&str) -> Vec<String>
 {
     // Build the window.
     let display = glium::glutin::WindowBuilder::new()
@@ -48,7 +49,10 @@ pub fn run_config<F>(process: F, configuration: Config) -> Option<String>
     // The image map describing each of our widget->image mappings (in our case, none).
     let image_map = conrod::image::Map::<glium::texture::Texture2d>::new();
 
-    let mut state = State { input_text: String::new() };
+    let mut state = State {
+        input_text: String::new(),
+        selected: 0,
+    };
 
     // Poll events from the window.
     let mut last_update = std::time::Instant::now();
@@ -95,8 +99,12 @@ pub fn run_config<F>(process: F, configuration: Config) -> Option<String>
                                                     Some(keycode)) => {
                     println!("Key: {:?}", keycode);
                     match keycode {
-                        VirtualKeyCode::Up => {}
-                        VirtualKeyCode::Down => {}
+                        VirtualKeyCode::Up => {
+                            state.selected = state.selected.saturating_sub(1);
+                        }
+                        VirtualKeyCode::Down => {
+                            state.selected = state.selected.saturating_add(1);
+                        }
                         _ => {}
                     }
                 }
@@ -107,7 +115,7 @@ pub fn run_config<F>(process: F, configuration: Config) -> Option<String>
         // Instantiate all widgets in the GUI.
         {
             let ui = &mut ui.set_widgets();
-            if let Some(answer) = set_widgets(ui, &ids, &mut state, &process, &configuration) {
+            if let Some(answer) = set_widgets(ui, &ids, &mut state, &process, configuration) {
                 return Some(answer);
             }
         }
@@ -133,7 +141,7 @@ fn set_widgets<F>(ui: &mut conrod::UiCell,
                   process: &F,
                   config: &Config)
                   -> Option<String>
-    where F: Fn(&str) -> String
+    where F: Fn(&str) -> Vec<String>
 {
     widget::Canvas::new()
         .scroll_kids_vertically()
@@ -152,15 +160,24 @@ fn set_widgets<F>(ui: &mut conrod::UiCell,
         }
     }
 
-    widget::Text::new(&process(&state.input_text))
-        .color(config.unselected_color)
+    let list = process(&state.input_text);
+    state.selected = std::cmp::min(state.selected, list.len() - 1);
+
+    let (mut items, _) = widget::List::flow_down(list.len())
         .middle_of(ids.canvas)
-        .center_justify()
         .set(ids.output, ui);
 
-    widget::Scrollbar::y_axis(ids.canvas)
-        .auto_hide(true)
-        .set(ids.scrollbar, ui);
+    while let Some(item) = items.next(ui) {
+        let i = item.i;
+        let text = widget::Text::new(&list[i])
+            .color(if i == state.selected {
+                       config.selected_color
+                   } else {
+                       config.unselected_color
+                   })
+            .center_justify();
+        item.set(text, ui);
+    }
 
     None
 }
