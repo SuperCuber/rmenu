@@ -161,12 +161,11 @@ fn set_widgets<F>(ui: &mut conrod::UiCell,
     }
 
     let list = process(&state.input_text);
-    state.selected = std::cmp::min(state.selected, list.len() - 1);
+    state.selected = std::cmp::min(state.selected, list.len().saturating_sub(1));
 
     let (mut items, _) = widget::List::flow_down(list.len())
         .middle_of(ids.canvas)
         .set(ids.output, ui);
-
     while let Some(item) = items.next(ui) {
         let i = item.i;
         let text = widget::Text::new(&list[i])
