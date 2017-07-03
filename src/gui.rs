@@ -14,13 +14,15 @@ struct State {
 }
 
 pub fn run<F>(process: F) -> Option<String>
-    where F: Fn(&str) -> Vec<String>
+where
+    F: Fn(&str) -> Vec<String>,
 {
     run_config(process, &Config::default())
 }
 
 pub fn run_config<F>(process: F, configuration: &Config) -> Option<String>
-    where F: Fn(&str) -> Vec<String>
+where
+    F: Fn(&str) -> Vec<String>,
 {
     // Build the window.
     let display = glium::glutin::WindowBuilder::new()
@@ -97,7 +99,6 @@ pub fn run_config<F>(process: F, configuration: &Config) -> Option<String>
                 glium::glutin::Event::KeyboardInput(glium::glutin::ElementState::Pressed,
                                                     _,
                                                     Some(keycode)) => {
-                    println!("Key: {:?}", keycode);
                     match keycode {
                         VirtualKeyCode::Up => {
                             state.selected = state.selected.saturating_sub(1);
@@ -135,13 +136,15 @@ pub fn run_config<F>(process: F, configuration: &Config) -> Option<String>
 
 widget_ids!(struct Ids { canvas, scrollbar, input, output });
 
-fn set_widgets<F>(ui: &mut conrod::UiCell,
-                  ids: &Ids,
-                  state: &mut State,
-                  process: &F,
-                  config: &Config)
-                  -> Option<String>
-    where F: Fn(&str) -> Vec<String>
+fn set_widgets<F>(
+    ui: &mut conrod::UiCell,
+    ids: &Ids,
+    state: &mut State,
+    process: &F,
+    config: &Config,
+) -> Option<String>
+where
+    F: Fn(&str) -> Vec<String>,
 {
     widget::Canvas::new()
         .scroll_kids_vertically()
@@ -149,10 +152,11 @@ fn set_widgets<F>(ui: &mut conrod::UiCell,
         .set(ids.canvas, ui);
 
     if let Some(edit) = widget::TextEdit::new(&state.input_text)
-           .color(config.input_color)
-           .mid_top_of(ids.canvas)
-           .center_justify()
-           .set(ids.input, ui) {
+        .color(config.input_color)
+        .mid_top_of(ids.canvas)
+        .center_justify()
+        .set(ids.input, ui)
+    {
         state.input_text = edit;
         // If contains \n, return this (without \n) as answer
         if state.input_text.contains('\n') {
@@ -170,10 +174,10 @@ fn set_widgets<F>(ui: &mut conrod::UiCell,
         let i = item.i;
         let text = widget::Text::new(&list[i])
             .color(if i == state.selected {
-                       config.selected_color
-                   } else {
-                       config.unselected_color
-                   })
+                config.selected_color
+            } else {
+                config.unselected_color
+            })
             .center_justify();
         item.set(text, ui);
     }
