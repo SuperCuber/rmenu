@@ -1,6 +1,6 @@
 use std;
 
-use conrod::{self, widget, Colorable, Positionable, Widget};
+use conrod::{self, widget, Colorable, Positionable, Widget, Sizeable};
 use conrod::backend::glium::glium;
 use conrod::backend::glium::glium::{DisplayBuild, Surface};
 
@@ -151,16 +151,20 @@ where
         .color(config.canvas_color)
         .set(ids.canvas, ui);
 
-    if let Some(edit) = widget::TextEdit::new(&state.input_text)
+    for event in widget::TextBox::new(&state.input_text)
         .color(config.input_color)
         .mid_top_of(ids.canvas)
+        .wh(config.input_size)
         .center_justify()
         .set(ids.input, ui)
     {
-        state.input_text = edit;
-        // If contains \n, return this (without \n) as answer
-        if state.input_text.contains('\n') {
-            return Some(state.input_text.replace("\n", ""));
+        match event {
+            widget::text_box::Event::Update(edit) => {
+                state.input_text = edit;
+            }
+            widget::text_box::Event::Enter => {
+                return Some(state.input_text.clone());
+            }
         }
     }
 
@@ -168,7 +172,8 @@ where
     state.selected = std::cmp::min(state.selected, list.len().saturating_sub(1));
 
     let (mut items, _) = widget::List::flow_down(list.len())
-        .middle_of(ids.canvas)
+        .down_from(ids.input, config.input_size[1])
+        .wh_of(ids.canvas)
         .set(ids.output, ui);
     while let Some(item) = items.next(ui) {
         let i = item.i;

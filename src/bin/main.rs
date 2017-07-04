@@ -14,7 +14,10 @@ fn main() {
     }
 
     let ans = rmenu::run(|s| process(s, &converted_options));
-    println!("Final: {:?}", ans);
+
+    println!("One: {:?}", ans);
+    println!("Two: {:?}", ans);
+    println!("Three: {:?}", ans);
 }
 
 fn filter(text: &str, options: &[(String, String)]) -> Vec<(String, String)> {
