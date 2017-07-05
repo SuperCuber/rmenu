@@ -6,7 +6,7 @@ pub struct Config {
     pub unselected_color: Color,
     pub selected_color: Color,
     pub input_size: [f64; 2],
-    // pub output_size: [f64; 2],
+    pub output_size: [f64; 2],
 }
 
 impl Config {
@@ -17,7 +17,7 @@ impl Config {
             unselected_color: color::WHITE,
             selected_color: color::RED,
             input_size: [100.0, 20.0],
-            // output_size: []
+            output_size: [100.0, 1000.0],
         }
     }
 }

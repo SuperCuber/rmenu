@@ -7,22 +7,25 @@ use conrod::backend::glium::glium::{DisplayBuild, Surface};
 use conrod::backend::glium::glium::glutin::VirtualKeyCode;
 
 use config::Config;
+use gui_result::GuiResult;
 
 struct State {
     input_text: String,
     selected: usize,
 }
 
-pub fn run<F>(process: F) -> Option<String>
+pub fn run<F, T>(process: F) -> GuiResult<T>
 where
-    F: Fn(&str) -> Vec<String>,
+    F: Fn(&str) -> Vec<T>,
+    T: Into<String> + From<String> + Clone,
 {
     run_config(process, &Config::default())
 }
 
-pub fn run_config<F>(process: F, configuration: &Config) -> Option<String>
+pub fn run_config<F, T>(process: F, configuration: &Config) -> GuiResult<T>
 where
-    F: Fn(&str) -> Vec<String>,
+    F: Fn(&str) -> Vec<T>,
+    T: Into<String> + From<String> + Clone,
 {
     // Build the window.
     let display = glium::glutin::WindowBuilder::new()
@@ -117,7 +120,7 @@ where
         {
             let ui = &mut ui.set_widgets();
             if let Some(answer) = set_widgets(ui, &ids, &mut state, &process, configuration) {
-                return Some(answer);
+                return answer;
             }
         }
 
@@ -131,25 +134,31 @@ where
         }
     }
 
-    None
+    GuiResult::Cancel
 }
 
 widget_ids!(struct Ids { canvas, scrollbar, input, output });
 
-fn set_widgets<F>(
+fn set_widgets<F, T>(
     ui: &mut conrod::UiCell,
     ids: &Ids,
     state: &mut State,
     process: &F,
     config: &Config,
-) -> Option<String>
+) -> Option<GuiResult<T>>
 where
-    F: Fn(&str) -> Vec<String>,
+    F: Fn(&str) -> Vec<T>,
+    T: Into<String> + From<String> + Clone,
 {
     widget::Canvas::new()
         .scroll_kids_vertically()
         .color(config.canvas_color)
         .set(ids.canvas, ui);
+
+    let list = process(&state.input_text);
+    state.selected = std::cmp::min(state.selected, list.len().saturating_sub(1));
+
+    let mut is_confirmed = false;
 
     for event in widget::TextBox::new(&state.input_text)
         .color(config.input_color)
@@ -163,22 +172,27 @@ where
                 state.input_text = edit;
             }
             widget::text_box::Event::Enter => {
-                return Some(state.input_text.clone());
+                if list.is_empty() {
+                    return Some(GuiResult::Custom(T::from(state.input_text.clone())));
+                } else {
+                    is_confirmed = true;
+                }
             }
         }
     }
 
-    let list = process(&state.input_text);
-    state.selected = std::cmp::min(state.selected, list.len().saturating_sub(1));
-
     let (mut items, _) = widget::List::flow_down(list.len())
         .down_from(ids.input, config.input_size[1])
-        .wh_of(ids.canvas)
+        .wh(config.output_size)
         .set(ids.output, ui);
     while let Some(item) = items.next(ui) {
         let i = item.i;
-        let text = widget::Text::new(&list[i])
+        let contents: String = list[i].clone().into();
+        let text = widget::Text::new(&contents)
             .color(if i == state.selected {
+                if is_confirmed {
+                    return Some(GuiResult::Option(list[i].clone()));
+                }
                 config.selected_color
             } else {
                 config.unselected_color
