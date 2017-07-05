@@ -1,6 +1,6 @@
 use std;
 
-use conrod::{self, widget, Colorable, Positionable, Widget, Sizeable};
+use conrod::{self, widget, Colorable, Positionable, Widget, Sizeable, Borderable};
 use conrod::backend::glium::glium;
 use conrod::backend::glium::glium::{DisplayBuild, Surface};
 
@@ -47,8 +47,7 @@ where
     let ids = Ids::new(ui.widget_id_generator());
 
     // Add a `Font` to the `Ui`'s `font::Map` from file.
-    const FONT_PATH: &'static str = "/usr/share/fonts/TTF/Ubuntu-M.ttf";
-    ui.fonts.insert_from_file(FONT_PATH).unwrap();
+    ui.fonts.insert_from_file(&configuration.font).unwrap();
 
     // A type used for converting `conrod::render::Primitives` into `Command`s that can be used
     // for drawing to the glium `Surface`.
@@ -131,7 +130,7 @@ where
         if let Some(primitives) = ui.draw_if_changed() {
             renderer.fill(&display, primitives, &image_map);
             let mut target = display.draw();
-            target.clear_color(0.0, 0.0, 0.0, 1.0);
+            target.clear_color(0.0, 0.0, 0.0, 0.0);
             renderer.draw(&display, &mut target, &image_map).unwrap();
             target.finish().unwrap();
         }
@@ -153,10 +152,11 @@ where
     F: Fn(&str) -> Vec<T>,
     T: Into<String> + From<String> + Clone,
 {
-    widget::Canvas::new()
-        .scroll_kids_vertically()
-        .color(config.canvas_color)
-        .set(ids.canvas, ui);
+    let canvas = widget::Canvas::new().scroll_kids_vertically().color(
+        config.canvas_color,
+    );
+    canvas.set(ids.canvas, ui);
+    let height = canvas.get_h(ui).unwrap();
 
     let list = process(&state.input_text);
     state.selected = std::cmp::min(state.selected, list.len().saturating_sub(1));
@@ -165,9 +165,16 @@ where
 
     for event in widget::TextBox::new(&state.input_text)
         .color(config.input_color)
-        .mid_top_of(ids.canvas)
+        .xy(
+            [
+                0.0,
+                height / 2.0 - config.input_top_padding - config.input_size[1] / 2.0,
+            ],
+        )
         .wh(config.input_size)
         .center_justify()
+        .border(config.input_border)
+        .border_color(config.input_border_color)
         .set(ids.input, ui)
     {
         match event {
@@ -185,7 +192,7 @@ where
     }
 
     let (mut items, _) = widget::List::flow_down(list.len())
-        .down_from(ids.input, config.input_size[1])
+        .down_from(ids.input, config.input_size[1] + config.output_top_padding)
         .wh(config.output_size)
         .set(ids.output, ui);
     while let Some(item) = items.next(ui) {
