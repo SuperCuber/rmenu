@@ -1,11 +1,13 @@
 extern crate rmenu;
 
 fn main() {
-    let mut options = Vec::new();
+    let cmd = rmenu::Command::new;
 
-    options.push(cmd("11", "Display11", "Cmd11"));
-    options.push(cmd("12", "Display12", "Cmd12"));
-    options.push(cmd("2", "Display2", "Cmd2"));
+    let options = vec![
+        cmd("11", "Display11", "Cmd11"),
+        cmd("12", "Display12", "Cmd12"),
+        cmd("2", "Display2", "Cmd2"),
+    ];
 
     let ans = rmenu::run(|s| process(s, &options));
 
@@ -32,15 +34,6 @@ fn main() {
     }
 
     println!("");
-}
-
-fn cmd<K, D, C>(key: K, display: D, command: C) -> rmenu::Command
-where
-    K: Into<String>,
-    D: Into<String>,
-    C: Into<String>,
-{
-    rmenu::Command::new(key, display, command)
 }
 
 fn process(text: &str, options: &[rmenu::Command]) -> Vec<rmenu::Command> {
