@@ -14,6 +14,8 @@ struct State {
     selected: usize,
 }
 
+#[doc = "Runs the menu with the default config.
+ The process function will filter the output based on the input."]
 pub fn run<F, T>(process: F) -> GuiResult<T>
 where
     F: Fn(&str) -> Vec<T>,
@@ -22,6 +24,7 @@ where
     run_config(process, &Config::default())
 }
 
+#[doc = "Runs with a configuration. See [run](fn.run.html)"]
 pub fn run_config<F, T>(process: F, configuration: &Config) -> GuiResult<T>
 where
     F: Fn(&str) -> Vec<T>,

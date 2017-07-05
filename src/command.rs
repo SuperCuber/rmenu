@@ -1,4 +1,5 @@
 #[derive(Debug)]
+#[doc = "Represents a command that is selectable in the menu"]
 pub struct Command {
     key: String,
     display: String,
@@ -6,10 +7,11 @@ pub struct Command {
 }
 
 impl Command {
-    pub fn new<A, B, C>(key: A, display: B, command: C) -> Command
+    #[doc = "Creates a new instance of Command"]
+    pub fn new<K, D, C>(key: K, display: D, command: C) -> Command
     where
-        A: Into<String>,
-        B: Into<String>,
+        K: Into<String>,
+        D: Into<String>,
         C: Into<String>,
     {
         Command {
@@ -19,24 +21,29 @@ impl Command {
         }
     }
 
+    #[doc = "Returns the key"]
     pub fn key(&self) -> &str {
         &self.key
     }
+    #[doc = "Returns the display string"]
     pub fn display(&self) -> &str {
         &self.display
     }
+    #[doc = "Returns the command"]
     pub fn command(&self) -> &str {
         &self.command
     }
 }
 
 impl Into<String> for Command {
+    #[doc = "Returns a string representation"]
     fn into(self) -> String {
         self.display.clone()
     }
 }
 
 impl From<String> for Command {
+    #[doc = "Creates a Command where key, display, and command are equal to arg"]
     fn from(arg: String) -> Command {
         Command::new(arg.clone(), arg.clone(), arg)
     }

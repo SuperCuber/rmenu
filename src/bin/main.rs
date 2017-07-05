@@ -3,9 +3,9 @@ extern crate rmenu;
 fn main() {
     let mut options = Vec::new();
 
-    options.push(rmenu::Command::new("11", "Display11", "Cmd11"));
-    options.push(rmenu::Command::new("12", "Display12", "Cmd12"));
-    options.push(rmenu::Command::new("2", "Display2", "Cmd2"));
+    options.push(cmd("11", "Display11", "Cmd11"));
+    options.push(cmd("12", "Display12", "Cmd12"));
+    options.push(cmd("2", "Display2", "Cmd2"));
 
     let ans = rmenu::run(|s| process(s, &options));
 
@@ -24,14 +24,23 @@ fn main() {
 
     // Execution
     match ans {
-        rmenu::GuiResult::Option(cmd) |
-        rmenu::GuiResult::Custom(cmd) => {
+        rmenu::GuiResult::Option(ref cmd) |
+        rmenu::GuiResult::Custom(ref cmd) => {
             println!("Executing {}", cmd.command());
         }
         _ => {}
     }
 
     println!("");
+}
+
+fn cmd<K, D, C>(key: K, display: D, command: C) -> rmenu::Command
+where
+    K: Into<String>,
+    D: Into<String>,
+    C: Into<String>,
+{
+    rmenu::Command::new(key, display, command)
 }
 
 fn process(text: &str, options: &[rmenu::Command]) -> Vec<rmenu::Command> {
