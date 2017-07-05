@@ -1,15 +1,27 @@
 extern crate rmenu;
+extern crate conrod;
+use conrod::color;
 
 fn main() {
     let cmd = rmenu::Command::new;
-
     let options = vec![
         cmd("11", "Display11", "Cmd11"),
         cmd("12", "Display12", "Cmd12"),
         cmd("2", "Display2", "Cmd2"),
     ];
 
-    let ans = rmenu::run(|s| process(s, &options));
+    let config = rmenu::Config {
+        canvas_color: color::GRAY,
+        input_color: color::GRAY,
+        unselected_color: color::WHITE,
+        selected_color: color::BLACK,
+        ..Default::default()
+    };
+
+    let ans = rmenu::run_config(
+        |input| filter(&options, |option| option.key().starts_with(input)),
+        &config,
+    );
 
     // Illustration
     match ans {
@@ -36,12 +48,14 @@ fn main() {
     println!("");
 }
 
-fn process(text: &str, options: &[rmenu::Command]) -> Vec<rmenu::Command> {
-    let mut answer = Vec::new();
-    for option in options {
-        if option.key().starts_with(text) {
-            answer.push(option.clone());
-        }
-    }
-    answer
+fn filter<T, F>(vector: &[T], function: F) -> Vec<T>
+where
+    F: FnMut(&&T) -> bool,
+    T: Clone,
+{
+    vector
+        .iter()
+        .filter(function)
+        .map(|item| item.clone())
+        .collect()
 }
