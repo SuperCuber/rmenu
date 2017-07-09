@@ -39,7 +39,7 @@ impl Default for Config {
             selected_color: color::RED,
 
             input_border: 1.0,
-            input_border_color: color::GRAY,
+            input_border_color: color::BLACK,
 
             input_size: [200.0, 25.0],
             output_size: [200.0, 1000.0],

@@ -11,51 +11,14 @@ fn main() {
     ];
 
     let config = rmenu::Config {
-        canvas_color: color::GRAY,
+        canvas_color: color::GRAY.with_alpha(0.1),
         input_color: color::GRAY,
         unselected_color: color::WHITE,
         selected_color: color::BLACK,
         ..Default::default()
     };
 
-    let ans = rmenu::run_config(
-        |input| filter(&options, |option| option.key().starts_with(input)),
-        &config,
-    );
-
-    // Illustration
-    match ans {
-        rmenu::GuiResult::Cancel => {
-            println!("Cancelled");
-        }
-        rmenu::GuiResult::Option(ref cmd) => {
-            println!("User selected option with cmd: {:?}", cmd);
-        }
-        rmenu::GuiResult::Custom(ref cmd) => {
-            println!("Custom choice: {:?}", cmd);
-        }
-    }
-
-    // Execution
-    match ans {
-        rmenu::GuiResult::Option(ref cmd) |
-        rmenu::GuiResult::Custom(ref cmd) => {
-            println!("Executing {}", cmd.command());
-        }
-        _ => {}
-    }
+    rmenu::reasonable_main(&options, &config).unwrap();
 
     println!("");
-}
-
-fn filter<T, F>(vector: &[T], function: F) -> Vec<T>
-where
-    F: FnMut(&&T) -> bool,
-    T: Clone,
-{
-    vector
-        .iter()
-        .filter(function)
-        .map(|item| item.clone())
-        .collect()
 }
