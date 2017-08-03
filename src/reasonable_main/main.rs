@@ -1,4 +1,4 @@
-use command;
+use reasonable_main::command;
 use gui;
 use config;
 use gui_result;
