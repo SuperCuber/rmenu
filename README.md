@@ -14,7 +14,7 @@ rmenu = { version = "*", git = "https://www.github.com/SuperCuber/rmenu" }
 
 # Examples
 Examples can be found in the `examples` folder.
-You can probably understand how to use the library without even being a Rust guru if you read the documentation.
+You can probably understand how to use the library even without being a Rust guru if you read the documentation.
 
 # Documentation
 (Documentation)[]
