@@ -4,4 +4,4 @@ version = "0.1.0"
 authors = ["SuperCuber <amit.gold00@gmail.com>"]
 
 [dependencies]
-conrod = { version = "*", features = ["glium", "winit"] }
+conrod = { version = "0.53.*", features = ["glium", "winit"] }
