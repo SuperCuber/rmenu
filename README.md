@@ -12,14 +12,6 @@ At the last line of Cargo.toml, add
 rmenu = { version = "*", git = "https://www.github.com/SuperCuber/rmenu" }
 ```
 
-# Usage
-The library has 3 main functions:
-- (run)[]
-- (run_config)[]
-- (reasonable_main)[]
-
-Your binary will probably call one of them.
-
 # Examples
 Examples can be found in the `examples` folder.
 You can probably understand how to use the library without even being a Rust guru if you read the documentation.
