@@ -22,8 +22,7 @@ pub fn reasonable_main(options: &[command::Command], config: &config::Config) ->
             process::Command::new("sh")
                 .arg("-c")
                 .arg(&cmd.command())
-                .spawn()?
-                .wait()?;
+                .spawn()?;
         }
         gui_result::GuiResult::Cancel => {}
     }
