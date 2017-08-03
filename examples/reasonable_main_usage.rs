@@ -6,9 +6,9 @@ fn main() {
     let cmd = rmenu::Command::new;
     rmenu::reasonable_main(
         &[
-            cmd("11", "Display11", "notify-send Cmd11"),
-            cmd("12", "Display12", "notify-send Cmd12"),
-            cmd("2", "Display2", "notify-send Cmd2"),
+            cmd("term", "Terminal", "termite"),
+            cmd("ff", "Firefox", "firefox"),
+            cmd("time", "Show time", "notify-send \"`date`\""),
         ],
         &rmenu::Config {
             canvas_color: color::GRAY.with_alpha(0.1),
