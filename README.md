@@ -1,5 +1,5 @@
 # Motivation
-I have used DMenu and Rofi in dmenu mode for a while as my main command launchers (with scripts around them),
+I have used DMenu and Rofi in dmenu mode for a while as my main launchers (with (scripts)[TODO] wrapping them),
 but I've found that they don't give me enough control about how the output is filtered.
 This is my attempt at creating my own launcher menu - one that gives me full control about what is displayed.
 
@@ -17,4 +17,4 @@ Examples can be found in the `examples` folder.
 You can probably understand how to use the library even without being a Rust guru if you read the documentation.
 
 # Documentation
-(Documentation)[]
+(Documentation)[TODO]
