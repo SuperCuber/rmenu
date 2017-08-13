@@ -2,7 +2,7 @@ use std;
 
 use conrod::{self, widget, Colorable, Positionable, Widget, Sizeable, Borderable};
 use conrod::backend::glium::glium;
-use conrod::backend::glium::glium::{DisplayBuild, Surface};
+use conrod::backend::glium::glium::Surface;
 
 use conrod::backend::glium::glium::glutin::VirtualKeyCode;
 
@@ -30,14 +30,14 @@ where
     F: Fn(&str) -> Vec<T>,
     T: Into<String> + From<String> + Clone,
 {
-    // Build the window.
-    let display = glium::glutin::WindowBuilder::new()
-        .with_vsync()
+    let mut events_loop = glium::glutin::EventsLoop::new();
+    let window = glium::glutin::WindowBuilder::new()
         .with_fullscreen(glium::glutin::get_primary_monitor())
-        .with_title("Rmenu")
-        .with_multisampling(4)
-        .build_glium()
-        .unwrap();
+        .with_title("Rmenu");
+    let context = glium::glutin::ContextBuilder::new()
+        .with_vsync(true)
+        .with_multisampling(4);
+    let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     // construct our `Ui`.
     let dimensions = glium::glutin::get_primary_monitor().get_dimensions();
@@ -61,84 +61,78 @@ where
         selected: 0,
     };
 
-    // Poll events from the window.
-    let mut last_update = std::time::Instant::now();
-    let mut ui_needs_update = true;
-    'main: loop {
+    let mut answer = GuiResult::Cancel;
 
-        // We don't want to loop any faster than 60 FPS, so wait until it has been at least
-        // 16ms since the last yield.
-        let sixteen_ms = std::time::Duration::from_millis(16);
-        let duration_since_last_update = std::time::Instant::now().duration_since(last_update);
-        if duration_since_last_update < sixteen_ms {
-            std::thread::sleep(sixteen_ms - duration_since_last_update);
-        }
+    events_loop.run_forever(|event| {
 
-        // Collect all pending events.
-        let mut events: Vec<_> = display.poll_events().collect();
-
-        // If there are no events and the `Ui` does not need updating, wait for the next event.
-        if events.is_empty() && !ui_needs_update {
-            events.extend(display.wait_events().next());
-        }
-
-        // Reset the needs_update flag and time this update.
-        ui_needs_update = false;
-        last_update = std::time::Instant::now();
-
-        // Handle all events.
-        for event in events {
-
-            // Use the `winit` backend feature to convert the winit event to a conrod one.
-            if let Some(event) = conrod::backend::winit::convert(event.clone(), &display) {
-                ui.handle_event(event);
-                ui_needs_update = true;
-            }
-
-            match event {
-                // Break from the loop upon `Escape`.
-                glium::glutin::Event::KeyboardInput(_, _, Some(VirtualKeyCode::Escape)) |
-                glium::glutin::Event::Closed => {
-                    break 'main;
-                }
-                glium::glutin::Event::KeyboardInput(glium::glutin::ElementState::Pressed,
-                                                    _,
-                                                    Some(keycode)) => {
-                    match keycode {
-                        VirtualKeyCode::Up => {
-                            state.selected = state.selected.saturating_sub(1);
+        // Break from the loop upon `Escape` or closed window.
+        match event.clone() {
+            glium::glutin::Event::WindowEvent { event, .. } => {
+                match event {
+                    glium::glutin::WindowEvent::Closed |
+                    glium::glutin::WindowEvent::KeyboardInput {
+                        input: glium::glutin::KeyboardInput {
+                            virtual_keycode: Some(VirtualKeyCode::Escape), ..
+                        },
+                        ..
+                    } => return glium::glutin::ControlFlow::Break,
+                    glium::glutin::WindowEvent::KeyboardInput {
+                        input: glium::glutin::KeyboardInput {
+                            virtual_keycode: Some(keycode),
+                            state: glium::glutin::ElementState::Pressed,
+                            ..
+                        },
+                        ..
+                    } => {
+                        match keycode {
+                            VirtualKeyCode::Up => {
+                                state.selected = state.selected.saturating_sub(1);
+                            }
+                            VirtualKeyCode::Down => {
+                                state.selected = state.selected.saturating_add(1);
+                            }
+                            _ => {}
                         }
-                        VirtualKeyCode::Down => {
-                            state.selected = state.selected.saturating_add(1);
-                        }
-                        _ => {}
                     }
+                    _ => (),
                 }
-                _ => {}
             }
+            _ => (),
         }
 
-        // Instantiate all widgets in the GUI.
+        // Use the `winit` backend feature to convert the winit event to a conrod one.
+        let input = match conrod::backend::winit::convert_event(event, &display) {
+            None => return glium::glutin::ControlFlow::Continue,
+            Some(input) => input,
+        };
+
+        // Handle the input with the `Ui`.
+        ui.handle_event(input);
+
+        // Set the widgets.
         {
-            let ui = &mut ui.set_widgets();
-            if let Some(answer) = set_widgets(ui, &ids, &mut state, &process, configuration) {
-                return answer;
-            }
+           let ui = &mut ui.set_widgets();
+           if let Some(ans) = set_widgets(ui, &ids, &mut state, &process, configuration) {
+               answer = ans;
+               return glium::glutin::ControlFlow::Continue;
+           }
         }
 
-        // Render the `Ui` and then display it on the screen.
+        // Draw the `Ui` if it has changed.
         if let Some(primitives) = ui.draw_if_changed() {
             renderer.fill(&display, primitives, &image_map);
             let mut target = display.draw();
-            target.clear_color(0.0, 0.0, 0.0, 0.0);
+            target.clear_color(0.0, 0.0, 0.0, 1.0);
             renderer.draw(&display, &mut target, &image_map).unwrap();
             target.finish().unwrap();
         }
-    }
+
+        glium::glutin::ControlFlow::Continue
+    });
 
     // TODO: Try to close the window
 
-    GuiResult::Cancel
+    answer
 }
 
 widget_ids!(struct Ids { canvas, scrollbar, input, output });

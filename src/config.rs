@@ -2,7 +2,8 @@ use conrod::color::{self, Color};
 
 #[doc = "Configuration for the GUI. Check source for what the defaults are.
 
-**Note**: ALWAYS add `..Default::default()` when creating a Config since I may add more configuration options and I will consider it a non breaking change."]
+**Note**: ALWAYS add `..Default::default()` when creating a Config
+since I may add more configuration options and I will consider it a non breaking change."]
 pub struct Config {
     #[doc = "Background color"]
     pub canvas_color: Color,
