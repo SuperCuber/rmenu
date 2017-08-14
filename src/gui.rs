@@ -114,7 +114,7 @@ where
            let ui = &mut ui.set_widgets();
            if let Some(ans) = set_widgets(ui, &ids, &mut state, &process, configuration) {
                answer = ans;
-               return glium::glutin::ControlFlow::Continue;
+               return glium::glutin::ControlFlow::Break;
            }
         }
 
