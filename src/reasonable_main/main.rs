@@ -19,8 +19,9 @@ pub fn reasonable_main(options: &[command::Command], config: &config::Config) ->
     match ans {
         gui_result::GuiResult::Option(ref cmd) |
         gui_result::GuiResult::Custom(ref cmd) => {
-            process::Command::new("sh")
-                .arg("-c")
+            let (shell, flag) = if cfg!(target_os = "windows") { ("cmd", "/C") } else { ("sh", "-c") };
+            process::Command::new(shell)
+                .arg(flag)
                 .arg(&cmd.command())
                 .spawn()?;
         }
