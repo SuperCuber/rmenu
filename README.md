@@ -17,4 +17,4 @@ Examples can be found in the `examples` folder.
 You can probably understand how to use the library even without being a Rust guru if you read the documentation.
 
 # Documentation
-(Documentation)[http://docs.rs/rmenu]
+[Documentation](http://docs.rs/rmenu)
