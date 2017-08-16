@@ -2,6 +2,11 @@
 name = "rmenu"
 version = "0.1.0"
 authors = ["SuperCuber <amit.gold00@gmail.com>"]
+description = "A rofi and dmenu inspired menu"
+repository = "https://www.github.com/SuperCuber/rmenu"
+readme = "README.md"
+keywords = ["rofi", "dmenu", "menu"]
+categories = ["command-line-utilities", "gui"]
 
 [dependencies]
 conrod = { version = "0.54.*", features = ["glium", "winit"] }
