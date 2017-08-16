@@ -111,11 +111,11 @@ where
 
         // Set the widgets.
         {
-           let ui = &mut ui.set_widgets();
-           if let Some(ans) = set_widgets(ui, &ids, &mut state, &process, configuration) {
-               answer = ans;
-               return glium::glutin::ControlFlow::Break;
-           }
+            let ui = &mut ui.set_widgets();
+            if let Some(ans) = set_widgets(ui, &ids, &mut state, &process, configuration) {
+                answer = ans;
+                return glium::glutin::ControlFlow::Break;
+            }
         }
 
         // Draw the `Ui` if it has changed.
