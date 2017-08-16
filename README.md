@@ -9,7 +9,7 @@ You can call it something like `my_rmenu`.
 Then you will need to add `rmenu` as a dependency.
 At the last line of Cargo.toml, add
 ```
-rmenu = { version = "*", git = "https://www.github.com/SuperCuber/rmenu" }
+rmenu = "*"
 ```
 
 # Examples
