@@ -10,3 +10,4 @@ pub use gui::{run, run_config};
 pub use config::Config;
 pub use gui_result::GuiResult;
 pub use reasonable_main::{reasonable_main, Command};
+pub use conrod::color;

@@ -1,6 +1,5 @@
 extern crate rmenu;
-extern crate conrod;
-use conrod::color;
+use rmenu::color;
 
 fn main() {
     let cmd = rmenu::Command::new;
