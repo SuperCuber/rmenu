@@ -31,6 +31,9 @@ pub struct Config {
 
     #[doc = "Path to a .ttf file with the font to use"]
     pub font: String,
+
+    #[doc = "Disable escape to exit the menu - because it crashes on i3-gaps"]
+    pub disable_esc: bool,
 }
 
 impl Default for Config {
@@ -51,6 +54,8 @@ impl Default for Config {
             output_top_padding: 0.0,
 
             font: "/usr/share/fonts/TTF/Ubuntu-M.ttf".into(),
+
+            disable_esc: false,
         }
     }
 }

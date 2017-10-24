@@ -69,13 +69,13 @@ where
         match event.clone() {
             glium::glutin::Event::WindowEvent { event, .. } => {
                 match event {
-                    glium::glutin::WindowEvent::Closed |
+                    glium::glutin::WindowEvent::Closed => return glium::glutin::ControlFlow::Break,
                     glium::glutin::WindowEvent::KeyboardInput {
                         input: glium::glutin::KeyboardInput {
                             virtual_keycode: Some(VirtualKeyCode::Escape), ..
                         },
                         ..
-                    } => return glium::glutin::ControlFlow::Break,
+                    } if !configuration.disable_esc => return glium::glutin::ControlFlow::Break,
                     glium::glutin::WindowEvent::KeyboardInput {
                         input: glium::glutin::KeyboardInput {
                             virtual_keycode: Some(keycode),
