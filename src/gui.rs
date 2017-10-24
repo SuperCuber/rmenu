@@ -32,7 +32,7 @@ where
 {
     let mut events_loop = glium::glutin::EventsLoop::new();
     let window = glium::glutin::WindowBuilder::new()
-        .with_fullscreen(glium::glutin::get_primary_monitor())
+        .with_fullscreen(Some(events_loop.get_primary_monitor()))
         .with_title("Rmenu");
     let context = glium::glutin::ContextBuilder::new()
         .with_vsync(true)
@@ -40,7 +40,7 @@ where
     let display = glium::Display::new(window, context, &events_loop).unwrap();
 
     // construct our `Ui`.
-    let dimensions = glium::glutin::get_primary_monitor().get_dimensions();
+    let dimensions = events_loop.get_primary_monitor().get_dimensions();
     let mut ui = conrod::UiBuilder::new([dimensions.0 as f64, dimensions.1 as f64]).build();
 
     // Generate the widget identifiers.

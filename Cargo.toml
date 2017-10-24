@@ -10,4 +10,4 @@ categories = ["command-line-utilities", "gui"]
 license = "WTFPL"
 
 [dependencies]
-conrod = { version = "0.54.*", features = ["glium", "winit"] }
+conrod = { version = "0.56.*", features = ["glium", "winit"] }
