@@ -1,6 +1,6 @@
 [package]
 name = "rmenu"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["SuperCuber <amit.gold00@gmail.com>"]
 description = "A rofi and dmenu inspired menu"
 repository = "https://www.github.com/SuperCuber/rmenu"
